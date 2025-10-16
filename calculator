@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>两段内容间距计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 16px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            display: none;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .result-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .result-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .final-result {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: #0066cc;
+        }
+        
+        .rules {
+            background: #fff9e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .rules h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .rule-item {
+            margin-bottom: 8px;
+            color: #666;
+        }
+        
+        .example {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f0f8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #2d5016;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>两段内容间距计算器</h1>
+        <p class="subtitle">根据设计稿间距和文字字号自动计算最终应用间距</p>
+        
+        <div class="input-group">
+            <label for="designSpacing">设计稿间距 (px)</label>
+            <input type="number" id="designSpacing" placeholder="例如：20">
+        </div>
+        
+        <div class="input-group">
+            <label for="topFontSize">上段文字字号 (px)</label>
+            <input type="number" id="topFontSize" placeholder="例如：16">
+        </div>
+        
+        <div class="input-group">
+            <label for="bottomFontSize">下段文字字号 (px)</label>
+            <input type="number" id="bottomFontSize" placeholder="例如：24">
+        </div>
+        
+        <button onclick="calculateSpacing()">计算最终间距</button>
+        
+        <div id="result" class="result">
+            <h3>计算结果</h3>
+            <div class="result-item">
+                <span class="result-label">上段文字行高倍数:</span>
+                <span id="topMultiplier" class="result-value"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">上段文字单边留白:</span>
+                <span id="topPadding" class="result-value"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">下段文字行高倍数:</span>
+                <span id="bottomMultiplier" class="result-value"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">下段文字单边留白:</span>
+                <span id="bottomPadding" class="result-value"></span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">总留白调整:</span>
+                <span id="totalPadding" class="result-value"></span>
+            </div>
+            <div class="final-result">
+                最终应用间距: <span id="finalSpacing"></span>px
+            </div>
+        </div>
+        
+        <div class="rules">
+            <h3>行高倍数规范</h3>
+            <div class="rule-item">12–18字号(px): 1.5倍</div>
+            <div class="rule-item">20–24字号(px): 1.4倍</div>
+            <div class="rule-item">26–36字号(px): 1.3倍</div>
+            <div class="rule-item">38–48字号(px): 1.2倍</div>
+            <div class="rule-item">50–120字号(px): 1.1倍</div>
+        </div>
+        
+        <div class="example">
+            <strong>示例:</strong> 设计稿间距20px，上段文字16px，下段文字24px → 最终间距11.2px
+        </div>
+    </div>
+
+    <script>
+        function getLineHeightMultiplier(fontSize) {
+            if (fontSize >= 12 && fontSize <= 18) {
+                return 1.5;
+            } else if (fontSize >= 20 && fontSize <= 24) {
+                return 1.4;
+            } else if (fontSize >= 26 && fontSize <= 36) {
+                return 1.3;
+            } else if (fontSize >= 38 && fontSize <= 48) {
+                return 1.2;
+            } else if (fontSize >= 50 && fontSize <= 120) {
+                return 1.1;
+            } else {
+                return 1.5; // 默认值
+            }
+        }
+        
+        function calculateSingleSidePadding(fontSize) {
+            const lineHeightMultiplier = getLineHeightMultiplier(fontSize);
+            const lineHeight = fontSize * lineHeightMultiplier;
+            return (lineHeight - fontSize) / 2;
+        }
+        
+        function calculateSpacing() {
+            // 获取输入值
+            const designSpacing = parseFloat(document.getElementById('designSpacing').value);
+            const topFontSize = parseFloat(document.getElementById('topFontSize').value);
+            const bottomFontSize = parseFloat(document.getElementById('bottomFontSize').value);
+            
+            // 验证输入
+            if (isNaN(designSpacing) || isNaN(topFontSize) || isNaN(bottomFontSize)) {
+                alert('请输入有效的数字！');
+                return;
+            }
+            
+            // 计算中间结果
+            const topMultiplier = getLineHeightMultiplier(topFontSize);
+            const bottomMultiplier = getLineHeightMultiplier(bottomFontSize);
+            const topPadding = calculateSingleSidePadding(topFontSize);
+            const bottomPadding = calculateSingleSidePadding(bottomFontSize);
+            const totalPadding = topPadding + bottomPadding;
+            const finalSpacing = designSpacing - totalPadding;
+            
+            // 显示结果
+            document.getElementById('topMultiplier').textContent = topMultiplier;
+            document.getElementById('topPadding').textContent = topPadding.toFixed(2) + 'px';
+            document.getElementById('bottomMultiplier').textContent = bottomMultiplier;
+            document.getElementById('bottomPadding').textContent = bottomPadding.toFixed(2) + 'px';
+            document.getElementById('totalPadding').textContent = totalPadding.toFixed(2) + 'px';
+            document.getElementById('finalSpacing').textContent = finalSpacing.toFixed(2);
+            
+            // 显示结果区域
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
